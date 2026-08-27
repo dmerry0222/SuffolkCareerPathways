@@ -522,70 +522,17 @@ footer.page>*{display:none!important}
 }
 
 /* Temporary diagnostic-only owner filter */
-.owner-filter{
-  align-self:flex-end;
-  min-height:43px;
-  padding:9px 16px;
-  border:1px dashed #8D98A8;
-  border-radius:999px;
-  background:#fff;
-  color:#596575;
-  font:inherit;
-  font-size:.86rem;
-  cursor:pointer;
-  max-width:210px;
-}
-.owner-filter:hover{border-color:var(--navy);color:var(--navy)}
-.owner-filter:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-
-.edit-info-btn{
-  align-self:flex-end;
-  min-height:43px;
-  padding:9px 16px;
-  border:1px dashed #8D98A8;
-  border-radius:999px;
-  background:#fff;
-  color:#596575;
-  font:inherit;
-  font-size:.86rem;
-  text-decoration:none;
-  display:inline-flex;
-  align-items:center;
-  gap:7px;
-  white-space:nowrap;
-}
-.edit-info-btn:hover{border-color:var(--navy);color:var(--navy)}
-.edit-info-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-.external-icon{
-  font-size:1rem;
-  line-height:1;
-  transform:translateY(-1px);
-}
-
 .header-meta{
   display:flex;
   align-items:center;
-  justify-content:space-between;
+  justify-content:flex-start;
   gap:20px;
   padding-top:22px;
 }
 .header-meta .breadcrumb{padding:0;min-width:0}
-.header-edit{
-  align-self:auto;
-  flex:none;
-  background:transparent;
-  color:#D4DEEC;
-  border-color:rgba(212,222,236,.65);
-}
-.header-edit:hover{
-  color:#fff;
-  border-color:#fff;
-  background:rgba(255,255,255,.06);
-}
 @media(max-width:700px){
   .header-meta{align-items:flex-start;gap:12px}
-  .header-edit{padding:7px 12px;min-height:38px}
-}
+  }
 
 
 /* --- Final accordion spacing override ---
@@ -633,11 +580,6 @@ footer.page>*{display:none!important}
     <div class="breadcrumb">
       <a href="https://careers.suffolk.edu/">&lt; Suffolk's Center for Career Equity, Development &amp; Success</a>
     </div>
-    <a class="edit-info-btn header-edit" href="https://docs.google.com/spreadsheets/d/1syIbypuzMpIGmZxa3fAiBeD66gzSA6ewf7vRX20OdKY/edit?usp=sharing"
-       target="_blank" rel="noopener" aria-label="Edit Info in a new tab">
-      Edit Info
-      <span class="external-icon" aria-hidden="true">↗</span>
-    </a>
   </div>
   <div class="wrap title">
     <h1>Career Pathways</h1>
@@ -660,9 +602,6 @@ footer.page>*{display:none!important}
       <input id="fq" placeholder="e.g. analytics, museum, policy" type="search"/>
     </div>
     <button class="clear" id="fclear" type="button">Reset</button>
-    <select class="owner-filter" id="fowner" aria-label="Temporary diagnostic filter by pathway owner">
-      <option value="">Owner · diagnostic</option>
-    </select>
 
   </div></div>
 </div>
@@ -1038,7 +977,7 @@ function render(model, live, failures=[]){
 }
 
 function bindInteractions(model){
-  const fmaj=document.getElementById('fmaj'), fcc=document.getElementById('fcc'), fq=document.getElementById('fq'), fowner=document.getElementById('fowner');
+  const fmaj=document.getElementById('fmaj'), fcc=document.getElementById('fcc'), fq=document.getElementById('fq');
   const empty=document.getElementById('empty'), count=document.getElementById('fcount'), toc=document.getElementById('toc-all');
 
   function dotsFor(p){
@@ -1050,16 +989,15 @@ function bindInteractions(model){
   }
 
   function apply(){
-    const mv=fmaj.value, cv=fcc.value, ov=fowner.value, q=fq.value.trim().toLowerCase();
+    const mv=fmaj.value, cv=fcc.value, q=fq.value.trim().toLowerCase();
     const shown=[];
     model.pathways.forEach(p=>{
       const article=document.getElementById(p['Pathway ID']);
       const majorOK=!mv || p.majors.Core.includes(mv) || p.majors.Adjacent.includes(mv);
       const ccOK=!cv || ccList(p,model).some(c=>c.code===cv);
       const hay=[p['Pathway name'],p.Description,p.Includes,p['Skills That Matter'],p['Entry & Early-Career Titles'],...p.majors.Core,...p.majors.Adjacent].join(' ').toLowerCase();
-      const ownerOK=!ov || (p.Owner||'').trim()===ov;
       const qOK=!q || hay.includes(q);
-      const on=majorOK && ccOK && ownerOK && qOK;
+      const on=majorOK && ccOK && qOK;
       article.classList.toggle('is-hidden',!on);
       if(on) shown.push(p);
     });
@@ -1128,9 +1066,9 @@ function bindInteractions(model){
     sync();
   });
 
-  [fmaj,fcc,fowner].forEach(x=>x.addEventListener('change',apply));
+  [fmaj,fcc].forEach(x=>x.addEventListener('change',apply));
   fq.addEventListener('input',apply);
-  document.getElementById('fclear').addEventListener('click',()=>{fmaj.value='';fcc.value='';fowner.value='';fq.value='';apply();});
+  document.getElementById('fclear').addEventListener('click',()=>{fmaj.value='';fcc.value='';fq.value='';apply();});
 
   const tt=document.getElementById('totop');
   tt.addEventListener('click',()=>window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'}));
